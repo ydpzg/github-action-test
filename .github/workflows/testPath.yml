@@ -27,7 +27,7 @@ jobs:
           CURRENT_SHA=$(git rev-parse HEAD)
           
           # List all changed .txt files between the previous and current commit
-          git diff --name-only $PREV_SHA $CURRENT_SHA -- 'app/*.txt' > changed_files.txt
+          git diff --name-only $PREV_SHA $CURRENT_SHA -- 'app/**/*.txt' > changed_files.txt
           
           # Check if the changed_files.txt file is non-empty (i.e., changes are detected)
           if [ -s changed_files.txt ]; then
