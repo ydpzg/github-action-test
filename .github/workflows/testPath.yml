@@ -44,5 +44,5 @@ jobs:
           # Loop through the files and send their contents to the API endpoint
           for FILE in $FILES; do
             CONTENT=$(jq -Rs . "$FILE")
-            curl -X POST -H "Content-Type: application/json" -d "{\"file\": \"$FILE\", \"content\": $CONTENT}" https://api.example.com/endpoint
+            curl -X POST -H "Content-Type: application/json" -d "{\"file\": \"$FILE\", \"content\": $CONTENT}" https://duke2.free.beeceptor.com
           done
