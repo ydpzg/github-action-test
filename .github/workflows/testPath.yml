@@ -3,7 +3,7 @@ name: Monitor Changes in Text Files
 on:
   push:
     paths:
-      - 'app/*.txt'
+      - 'app/**/*.txt'
 
 jobs:
   check-text-file-changes:
