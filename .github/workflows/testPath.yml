@@ -3,7 +3,7 @@ name: Monitor Changes in Text Files
 on:
   push:
     paths:
-      - 'app/**/*.txt'
+      - 'app/*.txt'
 
 jobs:
   check-text-file-changes:
@@ -38,6 +38,7 @@ jobs:
           JSON_FILES=$(jq -n --arg files "$FILES" '$files | split("\n") | map(select(. != ""))')
           # Set the output variable
           echo "::set-output name=files::$JSON_FILES"
+
       - name: Send File Contents to API Endpoint
         if: steps.find_modified_files.outputs.files != '[]'
         run: |
