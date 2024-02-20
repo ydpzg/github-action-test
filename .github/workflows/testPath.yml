@@ -38,3 +38,13 @@ jobs:
           JSON_FILES=$(jq -n --arg files "$FILES" '$files | split("\n") | map(select(. != ""))')
           # Set the output variable
           echo "::set-output name=files::$JSON_FILES"
+      - name: Send File Contents to API Endpoint
+        if: steps.find_modified_files.outputs.files != '[]'
+        run: |
+          # Read the array of files from the output
+          FILES=$(echo '${{ steps.find_modified_files.outputs.files }}' | jq -r '.[]')
+          # Loop through the files and send their contents to the API endpoint
+          for FILE in $FILES; do
+            CONTENT=$(jq -Rs . "$FILE")
+            curl -X POST -H "Content-Type: application/json" -d "{\"file\": \"$FILE\", \"content\": $CONTENT}" https://duke2.free.beeceptor.com
+          done
