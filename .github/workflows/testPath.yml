@@ -15,7 +15,7 @@ jobs:
       - name: Find Modified Text Files
         id: files
         run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- 'app/*.txt' > changed_files.txt
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- 'app/**/*.txt' > changed_files.txt
           if [ -s changed_files.txt ]; then
             echo "CHANGED_FILES<<EOF" >> $GITHUB_ENV
             cat changed_files.txt >> $GITHUB_ENV
