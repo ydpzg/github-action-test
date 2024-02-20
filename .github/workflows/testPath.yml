@@ -36,6 +36,7 @@ jobs:
           FILES=$(git diff --name-only $PREV_SHA $CURRENT_SHA -- 'app/*.txt')
           # Create a JSON array
           JSON_FILES=$(jq -n --arg files "$FILES" '$files | split("\n") | map(select(. != ""))')
+          echo "$JSON_FILES"
           # Set the output variable
           echo "::set-output name=files::$JSON_FILES"
 
