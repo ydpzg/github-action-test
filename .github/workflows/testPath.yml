@@ -11,13 +11,15 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+- name: Install jq
+        run: sudo apt-get install jq
 
       - name: Find Modified Text Files
-        id: files
+        id: find_modified_files
         run: |
           # Check if there is a previous commit to compare against
-          if git rev-parse --verify HEAD^; then
-            PREV_SHA=$(git rev-parse HEAD^)
+          if git rev-parse --verify HEAD~1; then
+            PREV_SHA=$(git rev-parse HEAD~1)
           else
             # If there is no previous commit, use the initial commit
             PREV_SHA=$(git rev-list --max-parents=0 HEAD)
@@ -27,16 +29,11 @@ jobs:
           CURRENT_SHA=$(git rev-parse HEAD)
           
           # List all changed .txt files between the previous and current commit
-          git diff --name-only $PREV_SHA $CURRENT_SHA -- 'app/**/*.txt' > changed_files.txt
-          
-          # Check if the changed_files.txt file is non-empty (i.e., changes are detected)
-          if [ -s changed_files.txt ]; then
-            echo "CHANGED_FILES<<EOF" >> $GITHUB_ENV
-            cat changed_files.txt >> $GITHUB_ENV
-            echo "EOF" >> $GITHUB_ENV
-          else
-            echo "No changes in .txt files detected."
-          fi
+          FILES=$(git diff --name-only $PREV_SHA $CURRENT_SHA -- 'app/*.txt')
+          # Create a JSON array
+          JSON_FILES=$(jq -n --arg files "$FILES" '$files | split("\n") | map(select(. != ""))')
+          # Set the output variable
+          echo "::set-output name=files::$JSON_FILES"
       - name: Send File Contents to API
         run: |
           while IFS= read -r file; do
