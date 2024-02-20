@@ -15,7 +15,15 @@ jobs:
       - name: Find Modified Text Files
         id: files
         run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- 'app/**/*.txt' > changed_files.txt
+          # 获取前一个提交的SHA
+          PREV_SHA=$(git rev-parse HEAD^)
+          # 获取当前提交的SHA
+          CURRENT_SHA=$(git rev-parse HEAD)
+          
+          # 列出前一个提交和当前提交之间所有改动的.txt文件
+          git diff --name-only $PREV_SHA $CURRENT_SHA -- 'app/*.txt' > changed_files.txt
+          
+          # 检查是否有文件改动
           if [ -s changed_files.txt ]; then
             echo "CHANGED_FILES<<EOF" >> $GITHUB_ENV
             cat changed_files.txt >> $GITHUB_ENV
@@ -23,7 +31,6 @@ jobs:
           else
             echo "No changes in .txt files detected."
           fi
-
       - name: Send File Contents to API
         run: |
           while IFS= read -r file; do
