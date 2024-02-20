@@ -17,7 +17,6 @@ jobs:
       - name: Find Modified Text Files
         id: find_modified_files
         run: |
-          # Check if there is a previous commit to compare against
           if git rev-parse --verify HEAD~1; then
             PREV_SHA=$(git rev-parse HEAD~1)
           else
@@ -30,18 +29,5 @@ jobs:
           
           # List all changed .txt files between the previous and current commit
           FILES=$(git diff --name-only $PREV_SHA $CURRENT_SHA -- 'app/*.txt')
-          # Create a JSON array
-          JSON_FILES=$(jq -n --arg files "$FILES" '$files | split("\n") | map(select(. != ""))')
-          # Set the output variable
-          echo "::set-output name=files::$JSON_FILES"
-      - name: Send File Contents to API
-        run: |
-          while IFS= read -r file; do
-            if [[ -f "$file" ]]; then
-              CONTENT=$(<"$file")
-              JSON_STRING=$(jq -n --arg content "$CONTENT" --arg file "$file" '{file: $file, content: $content}')
-              curl -X POST -H "Content-Type: application/json" -d "$JSON_STRING" https://duke2.free.beeceptor.com
-            fi
-          done <<< "$CHANGED_FILES"
-        env:
-          CHANGED_FILES: ${{ env.CHANGED_FILES }}
+
+          echo $FILES
