@@ -33,16 +33,21 @@ jobs:
           CURRENT_SHA=$(git rev-parse HEAD)
           
           # List all changed .txt files between the previous and current commit
-          FILES=$(git diff --name-only $PREV_SHA $CURRENT_SHA -- 'app/*.txt')
+          FILES=$(git diff --name-only $PREV_SHA $CURRENT_SHA -- 'app/**/*.txt')
           # Create a JSON array
           JSON_FILES=$(jq -n --arg files "$FILES" '$files | split("\n") | map(select(. != ""))')
-          echo "$JSON_FILES"
-          # Set the output variable
-          echo "::set-output name=files::$JSON_FILES"
+          # Write the JSON array to the environment file
+          echo "FILES_JSON=$JSON_FILES" >> $GITHUB_ENV
 
       - name: Send File Contents to API Endpoint
-        if: steps.find_modified_files.outputs.files != '[]'
+        if: env.FILES_JSON != '[]'
         run: |
-          # Read the array of files from the output
-          FILES=$(echo '${{ steps.find_modified_files.outputs.files }}' | jq -r '.[]')
-          echo $FILES
+          # Read the array of files from the environment variable
+          FILES=$(echo $FILES_JSON | jq -r '.[]')
+          # Loop through the files and send their contents to the API endpoint
+          for FILE in $FILES; do
+            CONTENT=$(jq -Rs . "$FILE")
+            curl -X POST -H "Content-Type: application/json" -d "{\"file\": \"$FILE\", \"content\": $CONTENT}" https://api.example.com/endpoint
+          done
+        env:
+          FILES_JSON: ${{ env.FILES_JSON }}
