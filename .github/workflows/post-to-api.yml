@@ -1,0 +1,19 @@
+name: Post Data to API
+
+on:
+  push:
+    paths:
+      - 'test.txt' # Trigger the workflow when test.txt is pushed
+
+jobs:
+  post-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Post data to API endpoint
+        run: |
+          CONTENT=$(cat ./test.txt)
+          echo "Sending content of test.txt to API"
+          curl -X POST -H "Content-Type: application/json" -d '{"data": "$CONTENT"}' https://duke2.free.beeceptor.com
