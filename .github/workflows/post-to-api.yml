@@ -16,6 +16,6 @@ jobs:
         run: |
           CONTENT=$(cat ./test.txt)
           echo "Sending content of test.txt to API"
-          echo "$CONTENT"
-          curl -X POST -H "Content-Type: text/plain" -d "$CONTENT" https://duke2.free.beeceptor.com
+          echo "{'data': $CONTENT}"
+          curl -X POST -H "Content-Type: application/json" -d "$CONTENT" https://duke2.free.beeceptor.com
 
