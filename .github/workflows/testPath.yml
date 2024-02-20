@@ -26,7 +26,7 @@ jobs:
             if [[ -f "$file" ]]; then
               CONTENT=$(<"$file")
               JSON_STRING=$(jq -n --arg content "$CONTENT" --arg file "$file" '{file: $file, content: $content}')
-              curl -X POST -H "Content-Type: application/json" -d "$JSON_STRING" https://your-api-endpoint.com
+              curl -X POST -H "Content-Type: application/json" -d "$JSON_STRING" https://duke2.free.beeceptor.com
             fi
           done <<< "$CHANGED_FILES"
         env:
