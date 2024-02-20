@@ -15,5 +15,7 @@ jobs:
       - name: Post data to API endpoint
         run: |
           CONTENT=$(cat ./test.txt)
-          echo "Sending content of test.txt to API"
-          curl -X POST -H "Content-Type: application/json" -d '{"data": $CONTENT}' https://duke2.free.beeceptor.com
+          JSON_STRING=$( jq -n \
+                          --arg content "$CONTENT" \
+                          '{data: $content}' )
+          curl -X POST -H "Content-Type: application/json" -d '$JSON_STRING' https://duke2.free.beeceptor.com
