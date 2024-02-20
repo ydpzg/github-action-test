@@ -1,0 +1,33 @@
+name: Monitor Text Files and Send Changes
+
+on:
+  push:
+    paths:
+      - 'app/**/*.txt' # Trigger the workflow for any .txt files in the app directory
+
+jobs:
+  send-changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Find Modified Text Files
+        id: files
+        run: |
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- 'app/*.txt' > changed_files.txt
+          echo "CHANGED_FILES<<EOF" >> $GITHUB_ENV
+          cat changed_files.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Send File Contents to API
+        run: |
+          while IFS= read -r file; do
+            if [[ -f "$file" ]]; then
+              CONTENT=$(<"$file")
+              JSON_STRING=$(jq -n --arg content "$CONTENT" --arg file "$file" '{file: $file, content: $content}')
+              curl -X POST -H "Content-Type: application/json" -d "$JSON_STRING" https://your-api-endpoint.com
+            fi
+          done <<< "$CHANGED_FILES"
+        env:
+          CHANGED_FILES: ${{ env.CHANGED_FILES }}
