@@ -1,22 +1,27 @@
-name: Monitor Text Files and Send Changes
+name: Monitor Changes in Text Files
 
 on:
   push:
     paths:
-      - 'app/**/*.txt' # Trigger the workflow for any .txt files in the app directory
+      - 'app/*.txt'
 
 jobs:
-  send-changes:
+  check-text-file-changes:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-- name: Install jq
+        with:
+          fetch-depth: 0  # Fetch all history for all branches and tags
+
+      - name: Install jq
         run: sudo apt-get install jq
 
       - name: Find Modified Text Files
         id: find_modified_files
         run: |
+          # Check if there is a previous commit to compare against
           if git rev-parse --verify HEAD~1; then
             PREV_SHA=$(git rev-parse HEAD~1)
           else
@@ -29,5 +34,7 @@ jobs:
           
           # List all changed .txt files between the previous and current commit
           FILES=$(git diff --name-only $PREV_SHA $CURRENT_SHA -- 'app/*.txt')
-
-          echo $FILES
+          # Create a JSON array
+          JSON_FILES=$(jq -n --arg files "$FILES" '$files | split("\n") | map(select(. != ""))')
+          # Set the output variable
+          echo "::set-output name=files::$JSON_FILES"
